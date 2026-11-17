@@ -1,136 +1,314 @@
-# Guía Práctica: Nodos y Listas Enlazadas en JavaScript
+# Documentacion de Estudio: Nodos y Listas Enlazadas en JavaScript
 
-## 1. Conceptos Fundamentales (¿Qué es cada cosa y para qué sirve?)
+## 1. Conceptos Basicos
 
 ### Nodo (`class Nodo`)
-* **¿Qué es?** Es la unidad básica o "vagón" de la lista. Es una plantilla que guarda información y sabe dónde está el siguiente elemento.
-* **¿Para qué sirve?** Para encapsular cualquier dato (un número, un texto o un objeto completo como una consulta médica) junto con una referencia al próximo nodo.
-* **Ejemplo:**
+* **Que es:** Es la pieza minima o "vagon" de la lista. Es un molde que guarda un dato y una flecha hacia el siguiente elemento.
+* **Para que sirve:** Para guardar informacion en cualquier lugar de la memoria RAM sin necesitar espacios seguidos (a diferencia de los arreglos).
+* **Codigo:**
   ```javascript
   class Nodo {
     constructor(dato) {
-      this.dato = dato;       // Aquí se guarda la información
-      this.siguiente = null;  // Aquí se guarda la flecha al próximo nodo
+      this.dato = dato;       // La informacion que guardamos
+      this.siguiente = null;  // La flecha al proximo nodo (empieza vacia)
     }
   }
+  module.exports = Nodo;
   ```
 
-### Referencia / Puntero (`.siguiente`)
-* **¿Qué es?** Una propiedad dentro del nodo que guarda la dirección en memoria del siguiente nodo.
-* **¿Para qué sirve?** Para conectar los nodos entre sí sin necesidad de que estén uno al lado del otro en la memoria RAM (a diferencia de los arreglos).
-* **Ejemplo:**
-  ```javascript
-  nodo1.siguiente = nodo2; // El nodo 1 ahora apunta al nodo 2
-  ```
-
-### Cabeza (`cabeza` / `head`)
-* **¿Qué es?** Una variable que guarda la referencia al **primer nodo** de toda la lista.
-* **¿Para qué sirve?** Es la puerta de entrada. Sin la cabeza, no tienes forma de encontrar el inicio de la cadena y pierdes acceso a todos los datos.
-* **Ejemplo:**
-  ```javascript
-  const cabeza = nodo1; // Marcamos cuál es el primer vagón del tren
-  ```
-
-### Nulo (`null`)
-* **¿Qué es?** Un valor especial en JavaScript que significa "vacío" o "sin referencia".
-* **¿Para qué sirve?** Se coloca en el `.siguiente` del último nodo para avisarle al programa que la lista ya terminó y no siga buscando más vagones.
-* **Ejemplo:**
-  ```javascript
-  // Visualmente: [Nodo 1] -> [Nodo 2] -> null
-  ```
+### Punteros de la Lista (`cabeza`, `cola` y `null`)
+* **Cabeza (`this.cabeza`):** Es la referencia al primer nodo del tren. Es la puerta de entrada obligatoria; si la pierdes o la mueves sin cuidado, pierdes toda la lista.
+* **Cola (`this.cola`):** Es la referencia directa al ultimo nodo del tren. Sirve para agregar elementos al final de inmediato sin tener que caminar por toda la lista.
+* **Nulo (`null`):** Es un valor vacio que va al final del ultimo nodo para avisarle al programa que el tren se acabo.
+* **Caso especial (1 solo nodo):** Si la lista esta vacia y metes un dato, tanto `cabeza` como `cola` apuntan a ese mismo unico nodo (`cabeza -> [A] <- cola`).
 
 ---
 
-## 2. Herramientas de Recorrido y Lógica
-
-### Operador de desigualdad estricta (`!==`)
-* **¿Qué significa?** Significa **"estrictamente diferente de"** (compara tanto el valor como el tipo de dato). Se usa en lugar de `!=` porque es más seguro y evita errores ocultos.
-* **¿Cómo leerlo?** `actual !== null` se lee: *"Mientras la variable `actual` **no sea** `null`..."*.
+## 2. El Motor de Recorrido (`while` y `actual`)
 
 ### Puntero Auxiliar (`let actual`)
-* **¿Qué es?** Una variable temporal que usamos como "dedo señalador" para ir saltando de nodo en nodo.
-* **¿Para qué sirve?** Para recorrer la lista **sin mover la `cabeza`**. Si movieras la `cabeza` directamente, perderías el inicio de la lista para siempre.
-* **Ejemplo:**
-  ```javascript
-  let actual = cabeza; // Ponemos el dedo en el primer nodo
-  ```
+* **Para que sirve:** Es un "dedo viajero" que usamos para caminar por los nodos **sin mover `this.cabeza`**. Si movieras `this.cabeza` directamente dentro de un ciclo, al terminar quedaria en `null` y perderias el inicio de la lista.
 
-### Ciclo `while` (El motor de recorrido)
-* **¿Qué es?** Una estructura que repite un bloque de código mientras se cumpla una condición.
-* **¿Para qué sirve?** Como en una lista enlazada no sabemos cuántos elementos hay ni tenemos índices, el `while` nos permite avanzar paso a paso.
-* **Regla de oro de las llaves `{ }`:**
-  * **Adentro:** Va lo que se repite en cada nodo (leer datos, sumar) y el paso para avanzar (`actual = actual.siguiente`).
-  * **Afuera:** Va lo que se hace una sola vez al terminar todo el viaje (imprimir un total final).
-* **Ejemplo base:**
-  ```javascript
-  let actual = cabeza;
-  let total = 0;
+### Operador `!==`
+* Significa **"estrictamente diferente de"**. `actual !== null` se lee: *"Mientras actual no sea null..."*.
 
-  while (actual !== null) {
-    console.log(actual.dato.nombre);       // 1. Leemos el dato
-    total = total + actual.dato.precio;    // 2. Acumulamos un valor
-    actual = actual.siguiente;             // 3. Avanzamos al siguiente (OBLIGATORIO)
+### Regla de oro de las llaves `{ }` en el `while`
+* **Adentro del `while`:** Va lo que se repite en cada nodo (leer, sumar, comparar) y la linea obligatoria para avanzar (`actual = actual.siguiente`). Si olvidas avanzar, creas un bucle infinito y se traba la terminal.
+* **Afuera del `while`:** Va lo que se hace una sola vez al terminar todo el viaje (imprimir un total final o retornar un arreglo).
+
+### Variantes del `while`
+1. `while (actual !== null)` -> Visita todos los nodos hasta salirse de la lista (sirve para imprimir, sumar o buscar).
+2. `while (actual.siguiente !== null)` -> Se detiene parado **encima del ultimo nodo** sin salirse (sirve si quieres enganchar algo al final cuando no tienes `cola`).
+3. `while (actual !== null && condicion)` -> Avanza mientras no se acabe la lista y no hayas encontrado lo que buscas.
+
+---
+
+## 3. La Clase `ListaEnlazada` (El Jefe de Estacion)
+
+En lugar de conectar nodos a mano uno por uno, encapsulamos toda la logica dentro de una clase que administra `cabeza`, `cola` y `tamanio`:
+
+```javascript
+const Nodo = require("./Nodo");
+
+class ListaEnlazada {
+  constructor() {
+    this.cabeza = null;
+    this.cola = null;
+    this.tamanio = 0;
   }
 
-  console.log("Total final:", total);      // Se imprime 1 sola vez al terminar
-  ```
+  estaVacia() {
+    return this.tamanio === 0;
+  }
 
-### Variantes del `while` según lo que necesites hacer
-1. **`while (actual !== null)` — Visitar todos los nodos:**
-   Se usa para imprimir toda la lista o sumar valores. El ciclo frena cuando `actual` ya salió de la lista y cayó en el vacío (`null`).
-2. **`while (actual.siguiente !== null)` — Detenerse en el último nodo:**
-   Se usa para quedar parado **encima del último vagón** sin salirse de la lista. Sirve para enganchar un nuevo nodo al final (`actual.siguiente = nuevoNodo`) cuando no tienes referencia a `cola`.
-3. **`while (actual !== null && condicion)` — Detenerse antes si encuentras algo:**
-   Se usa al **buscar** o **eliminar**. Avanza mientras no se acabe la lista **y** mientras no hayas encontrado lo que buscas. En cuanto lo halla, frena sin recorrer el resto.
-4. **`while (actual !== cabeza)` — Para listas circulares:**
-   Como en una lista circular el último nodo vuelve al primero y nunca hay `null`, se avanza hasta dar la vuelta completa y regresar a `cabeza`.
+  obtenerTamanio() {
+    return this.tamanio;
+  }
+
+  // Insertar al inicio: O(1)
+  agregarAlInicio(dato) {
+    const nuevo = new Nodo(dato);
+    if (this.estaVacia()) {
+      this.cabeza = nuevo;
+      this.cola = nuevo;
+    } else {
+      nuevo.siguiente = this.cabeza; // 1. Conectar antes de soltar
+      this.cabeza = nuevo;           // 2. Mover la cabeza al nuevo inicio
+    }
+    this.tamanio++;
+  }
+
+  // Insertar al final: O(1)
+  agregarAlFinal(dato) {
+    const nuevo = new Nodo(dato);
+    if (this.estaVacia()) {
+      this.cabeza = nuevo;
+      this.cola = nuevo;
+    } else {
+      this.cola.siguiente = nuevo;   // 1. Enganchar detras del ultimo
+      this.cola = nuevo;             // 2. Mover la cola al nuevo final
+    }
+    this.tamanio++;
+  }
+
+  // Recorrer ejecutando una accion (callback): O(n)
+  recorrer(callback) {
+    let actual = this.cabeza;
+    while (actual !== null) {
+      callback(actual.dato);
+      actual = actual.siguiente;
+    }
+  }
+
+  // Convertir la lista a un arreglo normal: O(n)
+  aArreglo() {
+    const resultado = [];
+    let actual = this.cabeza;
+    while (actual !== null) {
+      resultado.push(actual.dato);
+      actual = actual.siguiente;
+    }
+    return resultado;
+  }
+}
+
+module.exports = ListaEnlazada;
+```
 
 ---
 
-## 3. Operaciones Clave y Reglas de Supervivencia
+## 4. Logica de Insercion en Medio y Eliminacion
 
-### Insertar al inicio — Complejidad O(1)
-* **¿Para qué sirve?** Para agregar un elemento nuevo al principio de la lista de forma instantánea.
-* **Regla crítica:** **Conecta antes de soltar.** Primero apunta el nuevo nodo hacia la `cabeza` actual, y luego actualiza la `cabeza` hacia el nuevo nodo. Si lo haces al revés, pierdes toda la lista.
-* **Ejemplo:**
-  ```javascript
-  const nuevoNodo = new Nodo("Nuevo dato");
-  nuevoNodo.siguiente = cabeza; // 1. Aseguramos el tren actual
-  cabeza = nuevoNodo;           // 2. Movemos la cabeza al nuevo inicio
-  ```
+### Regla critica al insertar (Al inicio o en medio)
+* **Conecta antes de soltar.** Siempre apunta primero la flecha `.siguiente` del nodo nuevo hacia el resto del tren, y **despues** redirige la flecha del nodo anterior (o de `cabeza`) hacia el nodo nuevo. Si lo haces al reves, sueltas el resto de la lista y la pierdes.
 
-### Eliminar un nodo — Complejidad O(n)
-* **¿Para qué sirve?** Para quitar un elemento intermedio sin romper el resto de la cadena.
-* **¿Cómo funciona?** Te paras en el nodo **anterior** al que quieres borrar y haces que su flecha salte directo al nodo que está después del eliminado.
-* **¿Qué pasa con el nodo borrado?** Al quedarse sin nadie que lo apunte, el **Recolector de Basura (Garbage Collector)** de JavaScript lo borra automáticamente de la memoria. Si no lo guardaste en una variable antes, no se puede recuperar.
-* **Ejemplo:**
-  ```javascript
-  // Lista original: [A] -> [B] -> [C] -> null
-  // Para eliminar [B] estando parados en [A]:
-  nodoA.siguiente = nodoA.siguiente.siguiente; 
-  // Resultado: [A] -> [C] -> null
-  ```
+### Como funciona la eliminacion y que pasa con el nodo
+* **Como se borra:** Te paras en el nodo **anterior** al que quieres eliminar y haces que su flecha `.siguiente` salte directo al nodo que esta despues (`anterior.siguiente = anterior.siguiente.siguiente`).
+* **Casos borde a cuidar:**
+  * Si borras el unico nodo que habia, tanto `cabeza` como `cola` deben volver a quedar en `null` y `tamanio` en `0`.
+  * Si borras el ultimo nodo (`cola`), debes actualizar `this.cola` para que apunte al penultimo nodo.
+* **Que pasa con el nodo borrado:** Al quedarse sin nadie que lo apunte, queda huerfano en la memoria. El **Recolector de Basura (Garbage Collector)** de JavaScript lo elimina automaticamente. Si no lo guardaste en una variable antes de desconectarlo, no se puede recuperar.
 
 ---
 
-## 4. ¿Cuándo usar Lista Enlazada vs. Arreglo (`Array`)?
+## 5. Eficiencia (Notacion Big O) y Comparacion con Arreglos
 
-| Característica | Lista Enlazada | Arreglo (`[ ]`) |
+* **O(1) - Tiempo constante:** La operacion tarda lo mismo sin importar si hay 5 datos o 5 millones (ej. `agregarAlInicio` y `agregarAlFinal` usando `cola`).
+* **O(n) - Tiempo lineal:** El tiempo crece segun la cantidad de datos porque toca recorrer nodo por nodo (ej. `recorrer`, `aArreglo`, `buscar`, `eliminar`).
+
+| Caracteristica | Lista Enlazada | Arreglo (`[ ]`) |
 | :--- | :--- | :--- |
-| **Tamaño** | Dinámico (crece o baja sin límite fijo). | Fijo o costoso de redimensionar. |
-| **Memoria** | Dispersa (los nodos viven en cualquier lado). | Contigua (un elemento pegado al otro). |
-| **Buscar por posición** | Lento **O(n)** (hay que recorrer desde el inicio). | Instantáneo **O(1)** (vas directo con `lista[i]`). |
-| **Insertar / Borrar** | Rápido **O(1)** al inicio (solo cambias flechas). | Lento **O(n)** (toca correr todos los elementos). |
+| **Tamano** | Dinamico (crece o baja sin limite fijo). | Fijo o costoso de redimensionar. |
+| **Memoria** | Dispersa (en cualquier lugar de la RAM). | Contigua (un dato pegado al otro). |
+| **Buscar por posicion** | Lento O(n) (hay que caminar desde cabeza). | Rapido O(1) (acceso directo con `lista[i]`). |
+| **Insertar al inicio** | Rapido O(1) (solo cambias flechas). | Lento O(n) (toca correr todos los elementos). |
 
 ---
 
-## 5. Módulos en Node.js (Conectar archivos)
+## 6. Conexion de Archivos en Node.js y Git
 
-* **`module.exports = Nodo;`** -> Va al final del archivo donde creas la clase para permitir que otros archivos la usen.
-* **`const Nodo = require('../src/Nodo');`** -> Va al inicio del archivo donde quieres importar y usar esa clase.
+* **Exportar una clase:** `module.exports = NombreClase;` (al final del archivo).
+* **Importar una clase:** `const NombreClase = require('./ruta/Archivo');` (al inicio del archivo).
 
+# Apuntes de Estudio - MiniReto 3: Buscar, Insertar en Medio y Eliminar
+
+## 1. Funciones Condicion (Callbacks)
+* En los metodos `buscar`, `insertarDespuesDe` y `eliminar`, en vez de pasar un texto fijo, pasamos una **funcion condicion** (ejemplo: `x => x === "Lola"` o `atencion => atencion.motivo === "Control"`).
+* Dentro del ciclo `while`, usamos `if (condicion(actual.dato))` para preguntarle a cada nodo si cumple lo que estamos buscando. Si cumple da `true`, si no da `false`.
+
+---
+
+## 2. Metodo `buscar(condicion)` - Complejidad O(n)
+* **Para que sirve:** Encontrar un dato dentro de la lista sin importar en que posicion este.
+* **Como funciona:** Caminas desde `this.cabeza` con `actual`. Si `condicion(actual.dato)` es verdadero, retornas `actual.dato` de inmediato. Si sales del `while` y llegaste a `null`, retornas `null`.
+* **Codigo:**
+  ```javascript
+  buscar(condicion) {
+    let actual = this.cabeza;
+
+    while (actual !== null) {
+      if (condicion(actual.dato)) {
+        return actual.dato;
+      }
+      actual = actual.siguiente;
+    }
+
+    return null;
+  }
+  ```
+
+---
+
+## 3. Metodo `insertarDespuesDe(condicion, dato)` - Complejidad O(n)
+* **Para que sirve:** Meter un nodo nuevo en medio de la lista (justo despues de un nodo especifico).
+* **Regla critica (Conecta antes de soltar):**
+  1. Primero enganchas el nuevo nodo al resto del tren (`nuevo.siguiente = actual.siguiente`).
+  2. Despues rediriges la flecha del nodo donde estas parado hacia el nuevo (`actual.siguiente = nuevo`). Si lo haces al reves, sueltas el resto de la lista y la pierdes.
+  3. **Caso borde de la cola:** Si insertaste justo despues de `this.cola`, actualizas `this.cola = nuevo`.
+* **Codigo:**
+  ```javascript
+  insertarDespuesDe(condicion, dato) {
+    let actual = this.cabeza;
+
+    while (actual !== null) {
+      if (condicion(actual.dato)) {
+        const nuevo = new Nodo(dato);
+        nuevo.siguiente = actual.siguiente;
+        actual.siguiente = nuevo;
+
+        if (actual === this.cola) {
+          this.cola = nuevo;
+        }
+
+        this.tamanio++;
+        return true;
+      }
+      actual = actual.siguiente;
+    }
+
+    return false;
+  }
+  ```
+
+---
+
+## 4. Metodo `eliminar(condicion)` con Dos Punteros - Complejidad O(n)
+* **Por que dos punteros:** Como en una lista simple las flechas solo miran hacia adelante, para borrar un nodo necesitas estar parado en el de atras. Por eso caminas con dos variables: `anterior` (empieza en `null`) y `actual` (empieza en `this.cabeza`).
+* **Los casos borde que debes controlar:**
+  1. **Lista vacia:** Si `this.estaVacia()`, retornas `null` de una vez.
+  2. **Borrar la cabeza (`anterior === null`):** Mueves `this.cabeza = actual.siguiente`. Si era el unico nodo que habia (`this.cabeza === null`), tambien pones `this.cola = null` para que no quede apuntando a un fantasma.
+  3. **Borrar en medio:** Haces un puente saltandote el nodo (`anterior.siguiente = actual.siguiente`).
+  4. **Borrar la cola (`actual === this.cola`):** Haces el puente hacia `null` y mueves `this.cola = anterior`.
+  5. **Tamaño:** Siempre restas `this.tamanio--` antes de retornar `actual.dato`.
+* **Que pasa con el nodo borrado:** Al quedarse sin nadie que lo apunte, el **Recolector de Basura (Garbage Collector)** de JavaScript lo limpia solo de la memoria. Si no lo retornas o guardas antes, no se puede recuperar.
+* **Codigo:**
+  ```javascript
+  eliminar(condicion) {
+    if (this.estaVacia()) {
+      return null;
+    }
+
+    let anterior = null;
+    let actual = this.cabeza;
+
+    while (actual !== null) {
+      if (condicion(actual.dato)) {
+        if (anterior === null) {
+          this.cabeza = actual.siguiente;
+          if (this.cabeza === null) {
+            this.cola = null;
+          }
+        } else {
+          anterior.siguiente = actual.siguiente;
+          if (actual === this.cola) {
+            this.cola = anterior;
+          }
+        }
+
+        this.tamanio--;
+        return actual.dato;
+      }
+
+      anterior = actual;
+      actual = actual.siguiente;
+    }
+
+    return null;
+  }
+  ```
+
+---
+
+## 5. Errores comunes que ya aprendiste a evitar
+* **Nunca pongas `;` despues de un `if (...)` o `while (...)`:** Corta la instruccion antes de entrar a las llaves `{ }` y hace que el codigo de abajo se ejecute siempre.
+* **Verifica siempre que `this.estaVacia()` lleve parentesis `()`:** Sin parentesis estas preguntando si la funcion existe, no ejecutandola.
 
 
 --------------------------------------------------
-BITACORA 1 ----- 17/11/2026
+BITACORA Mini reto 1 |Semana 2| día 1 | 17/11/2026
 cabeza -> [02/02 Vacunación | $85.000] -> [15/03 Control de peso | $40.000] -> [20/05 Limpieza dental | $150.000] -> null
+
+BITACORA Mini reto 2 |Semana 2| día 1 | 17/11/2026
+• Lista vacía (cabeza: null, cola: null): Al agregar el nodo A, tanto cabeza como cola pasan a apuntar a A (cabeza -> [A] <- cola).
+• Lista con un nodo ([A]):
+	• Al inicio (B): B.siguiente apunta a A, y cabeza se mueve a B (cola se queda en A).
+	• Al final (B): cola.siguiente (que es A.siguiente) apunta a B, y cola se mueve a B (cabeza se queda en A).
+• Lista con varios nodos ([A] -> [B]): Funciona exactamente igual que con un nodo: solo tocas un extremo sin recorrer nada.
+
+
+Como se mueven cabeza y cola al insertar:
+
+Al inicio (agregarAlInicio):
+- Lista vacia: cabeza -> [A] <- cola (los dos apuntan al mismo porque es el unico)
+- Con 1 nodo: cabeza -> [B] -> [A] <- cola (B apunta a A y cabeza pasa a ser B, la cola no se mueve)
+- Con varios: cabeza -> [C] -> [B] -> [A] <- cola (C se engancha antes de B y cabeza sube a C)
+
+Al final (agregarAlFinal):
+- Lista vacia: cabeza -> [A] <- cola (igual, los dos apuntan al unico nodo)
+- Con 1 nodo: cabeza -> [A] -> [B] <- cola (el siguiente de la cola apunta a B y cola pasa a ser B)
+- Con varios: cabeza -> [A] -> [B] -> [C] <- cola (se engancha detras de la cola actual y cola baja a C)
+
+Complejidad (Big O):
+- agregarAlInicio y agregarAlFinal: O(1) porque van directo a la cabeza o a la cola sin recorrer nada.
+- estaVacia y obtenerTamanio: O(1) porque solo miran las variables que ya tenemos guardadas.
+- recorrer y aArreglo: O(n) porque les toca caminar por toda la lista desde la cabeza hasta null.
+
+BITACORA Mini reto 1 |Semana 2| día 1 | 17/11/2026
+
+1. buscar:
+Voy pasando nodo por nodo desde la cabeza con un while. Si encuentro lo que busco lo devuelvo de una, y si llego a null sin encontrar nada devuelvo null.
+
+2. insertarDespuesDe:
+Busco el nodo donde quiero meter el dato nuevo. Cuando lo encuentro, primero conecto el nodo nuevo al que seguia para no soltar el resto de la lista, y ya despues si conecto el actual al nuevo. Si lo meti despues de la cola, actualizo la cola.
+
+3. eliminar (con anterior y actual):
+Como las flechas solo van para adelante, me toca caminar con dos variables: actual que va mirando el nodo y anterior que viene un paso atras.
+- Si la lista esta vacia devuelve null.
+- Si solo habia un nodo, borro la cabeza y tambien dejo la cola en null para que no quede apuntando a nada.
+- Si borro la cabeza (cuando anterior es null), solo muevo la cabeza al siguiente.
+- Si borro uno del medio, salto el nodo conectando el anterior con el que sigue (anterior.siguiente = actual.siguiente) y el nodo suelto se borra solo de la memoria.
+- Si borro la cola, hago lo mismo y muevo la cola al anterior.
+- Si no existe el dato, llega a null y devuelve null.
+
+**Big O:**
+Los tres metodos son O(n) porque en el peor caso toca recorrer toda la lista para encontrar el nodo.
