@@ -264,6 +264,91 @@ module.exports = ListaEnlazada;
 * **Verifica siempre que `this.estaVacia()` lleve parentesis `()`:** Sin parentesis estas preguntando si la funcion existe, no ejecutandola.
 
 
+# Apuntes de Estudio - MiniReto 4: RegistroClinico y Reporte Final
+
+## 1. Como funciona `RegistroClinico` (El Archivador de Carpetas)
+* **Que es:** Es la clase que conecta tu estructura de datos (`ListaEnlazada`) con el problema real de la veterinaria.
+* **Como guarda los datos (`this.historiales = {}`):** Usamos un objeto de JavaScript como un archivador. La clave (etiqueta de la carpeta) es el nombre de la mascota (`"Lola (Gata)"`) y el valor guardado adentro es una `ListaEnlazada` completa con todas sus consultas.
+* **Como agrega una atencion (`registrarAtencion`):**
+  1. Primero revisa si la mascota **no** tiene carpeta todavia usando `if (!this.historiales[mascota])`. El signo `!` significa "no".
+  2. Si no existe, le fabrica una carpeta nueva con una lista vacia (`this.historiales[mascota] = new ListaEnlazada()`).
+  3. Luego mete la consulta al final de su lista (`this.historiales[mascota].agregarAlFinal(atencion)`).
+* **Codigo:**
+  ```javascript
+  const ListaEnlazada = require('./ListaEnlazada');
+
+  class RegistroClinico {
+    constructor() {
+      this.historiales = {};
+    }
+
+    registrarAtencion(mascota, atencion) {
+      if (!this.historiales[mascota]) {
+        this.historiales[mascota] = new ListaEnlazada();
+      }
+      this.historiales[mascota].agregarAlFinal(atencion);
+    }
+
+    obtenerHistorial(mascota) {
+      return this.historiales[mascota] || null;
+    }
+  }
+
+  module.exports = RegistroClinico;
+  ```
+
+---
+
+## 2. Herramientas de JavaScript que usaste en `reporte.js`
+
+### `Object.keys(objeto)`
+* **Para que sirve:** Toma un objeto y te devuelve un arreglo normal con los nombres de todas sus claves (las etiquetas de las carpetas).
+* **Ejemplo:** `Object.keys(registro.historiales)` devuelve `["Lola (Gata)", "Toby (Perro)", "Mía (Gata)"]`.
+
+### Ciclo `for (const elemento of arreglo)`
+* **Para que sirve:** Sirve para recorrer un arreglo elemento por elemento de forma limpia sin tener que usar contadores (`i = 0`). En tu reporte, repite todo el bloque una vez por cada mascota.
+
+### Comillas invertidas (`` ` ``) y `${ }` (Template Literals)
+* **Diferencia entre comillas:**
+  * Las comillas normales (`"..."` y `'...'`) sirven solo para texto fijo.
+  * Las comillas invertidas (`` `...` ``) permiten meter variables o calculos adentro del texto.
+* **Para que sirve `${ }`:** Es el hueco donde metes una variable adentro de unas comillas invertidas para que JavaScript imprima su valor.
+* **Por que viste dos `$` (`$${costoTotal}`):** El primer `$` esta afuera y es solo el simbolo de pesos en texto normal; el segundo viene pegado a `{costoTotal}` para insertar el numero.
+
+### Operador Ternario (`condicion ? valorSiVerdadero : valorSiFalso`)
+* **Para que sirve:** Es una forma corta de escribir un `if / else` en una sola linea para asignar un valor.
+* **Como leerlo en tu codigo:**
+  ```javascript
+  const infoVacuna = vacuna ? `${vacuna.fecha} (${vacuna.veterinario})` : "sin registro";
+  ```
+  Se lee: *"¿La variable `vacuna` tiene datos? Si si tiene, arma el texto con la fecha y el doctor; si es `null` (como paso con Mia), pon el texto 'sin registro'"*.
+
+---
+
+## 3. Como se conectaron todas las piezas en el Reporte
+1. `registro.obtenerHistorial(mascota)` saca la `ListaEnlazada` de esa mascota.
+2. `historial.obtenerTamanio()` entrega cuantas citas tuvo en total (tiempo O(1)).
+3. `historial.recorrer(...)` camina por todas las citas en orden cronologico para imprimirlas e ir sumando `costoTotal += atencion.costo` (tiempo O(n)).
+4. `historial.buscar(...)` busca especificamente la cita cuyo motivo sea `"Vacunación anual"` y devuelve el objeto de la cita o `null` si nunca se la pusieron (tiempo O(n)).
+
+---
+
+## 4. Errores de sintaxis que aprendiste a detectar
+* **Comas vs. Puntos:** Un punto (`.`) conecta un objeto con sus metodos o rutas (`./RegistroClinico`, `lista.agregarAlFinal`). Si pones una coma (`,`), JavaScript se confunde.
+* **Mayusculas y minusculas:** En Linux y Node.js los nombres de archivos y clases distinguen estrictamente entre mayusculas y minusculas (`ListaEnlazada` no es lo mismo que `listaEnlazada`).
+* **Texto exacto en busquedas:** Si buscas `"Vacunación anual"` con tilde, el dato guardado tambien debe tener la tilde o la comparacion (`===`) dara falso.
+
+
+
+
+
+
+
+
+
+
+
+
 --------------------------------------------------
 BITACORA Mini reto 1 |Semana 2| día 1 | 17/11/2026
 cabeza -> [02/02 Vacunación | $85.000] -> [15/03 Control de peso | $40.000] -> [20/05 Limpieza dental | $150.000] -> null
@@ -312,3 +397,13 @@ Como las flechas solo van para adelante, me toca caminar con dos variables: actu
 
 **Big O:**
 Los tres metodos son O(n) porque en el peor caso toca recorrer toda la lista para encontrar el nodo.
+
+BITACORA Mini reto 4 |Semana 2| día 1 | 17/11/2026
+
+**Por que use una lista enlazada y un objeto para las mascotas:**
+- Use un objeto normal para guardar cada mascota con su nombre y encontrar su carpeta al instante.
+- Adentro de cada mascota use una lista enlazada porque las consultas medicas van aumentando sin un limite fijo y se van leyendo en orden desde la primera hasta la ultima.
+
+**Que pasaria si tuviera que buscar entre 10.000 citas:**
+- Encontrar la carpeta de la mascota por su nombre seguiria siendo inmediato (O(1)).
+- Pero buscar una cita especifica dentro de un historial tan largo se pondria lento (O(n)), porque tocaria ir revisando cita por cita desde la primera hasta dar con ella.
