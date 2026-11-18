@@ -340,6 +340,82 @@ module.exports = ListaEnlazada;
 
 
 
+# Documentacion de Estudio: Colas, Prioridades y Simulación en JavaScript
+
+## 1. Estructura de Datos: Cola (`class Cola`)
+
+### Cola FIFO (`First In, First Out`)
+* **Que es:** Una estructura de datos lineal donde el primer elemento en entrar es el primero en salir (como una fila en la recepcion).
+* **Para que sirve:** Para gestionar turnos, pedidos o procesos respetando estrictamente su orden de llegada en tiempo constante **O(1)**.
+* **Codigo:**
+  ```javascript
+  class Cola {
+      constructor() {
+          this.frente = null;   // Puntero al primero en ser atendido
+          this.final = null;    // Puntero al ultimo que llego a la fila
+          this.longitud = 0;    // Contador para saber el tamaño en O(1)
+      }
+  }
+  ```
+
+### Punteros y Operaciones de la Cola (`encolar` y `desencolar`)
+* **Frente (`this.frente`):** Apunta al nodo mas antiguo de la fila. Al llamar a `desencolar()`, solo movemos este puntero hacia `this.frente.siguiente` sin mover los demas elementos en memoria (**O(1)**).
+* **Final (`this.final`):** Apunta al ultimo nodo. Permite enganchar turnos nuevos (`this.final.siguiente = nuevoNodo`) sin recorrer toda la fila. Si al desencolar la cola queda vacia, `this.final` debe volver a `null`.
+* **Complejidad vs Arreglo:** Usar `shift()` en un arreglo tarda **O(n)** porque obliga a reindexar y correr todos los elementos hacia la izquierda cada vez que sale el primero.
+
+---
+
+## 2. Gestion de Prioridades (`class Recepcion`)
+
+### Doble Cola con Prioridad
+* **Que es:** Una clase administradora que contiene dos instancias independientes de `Cola` (`this.urgencias` y `this.generales`).
+* **Para que sirve:** Para atender casos criticos antes que consultas normales, manteniendo el orden de llegada interno (**FIFO**) dentro de cada categoria.
+* **Codigo:**
+  ```javascript
+  llamarSiguiente() {
+      if (!this.urgencias.estaVacia()) {
+          return this.urgencias.desencolar();   // Prioridad absoluta a urgencias
+      } else if (!this.generales.estaVacia()) {
+          return this.generales.desencolar();   // Si no hay urgencias, pasan generales
+      }
+      return null;
+  }
+  ```
+
+---
+
+## 3. Herramientas de Simulacion y Metodos de JavaScript
+
+### Calculo del Reloj (`Math.floor` y `%`)
+* **Que es:** Operaciones matematicas para convertir minutos acumulados (ej. `85`) a formato de hora reloj (`"09:25"`).
+* **Para que sirve:** Evita errores al sumar horas y minutos como texto durante una simulacion minuto a minuto.
+* **Codigo:**
+  ```javascript
+  function formatearHora(minutos) {
+      const horas = 8 + Math.floor(minutos / 60); // Division entera: saca las horas completas
+      const mins = minutos % 60;                  // Modulo (%): saca los minutos que sobran
+      return `${horas.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+  }
+  ```
+
+### Formateo de Texto (`.toString()` y `.padStart()`)
+* **`.toString()`:** Convierte un numero en cadena de texto para poder manipular sus caracteres.
+* **`.padStart(2, '0')`:** Rellena el texto por la izquierda con ceros hasta completar 2 caracteres (convierte `"5"` en `"05"`).
+
+### Arreglos y Funciones Flecha (`.reduce()`, `=>` y `.toFixed()`)
+* **Funcion Flecha (`=>`):** Forma corta de escribir funciones en JavaScript.
+* **`.reduce((acum, val) => acum + val, 0)`:** Recorre un arreglo de numeros y los suma todos en una sola variable acumuladora (`acum`) que inicia en `0`.
+* **`.toFixed(2)`:** Corta y redondea un numero decimal a exactamente 2 decimales (ej. `8.3333` pasa a `"8.33"`).
+* **Codigo:**
+  ```javascript
+  // Suma todos los tiempos de espera y los divide entre la cantidad de pacientes
+  const calcularPromedio = (lista) => lista.reduce((acum, val) => acum + val, 0) / lista.length;
+  console.log(calcularPromedio(esperasUrgencias).toFixed(2));
+  ```
+
+### Medicion de Rendimiento (`console.time` y `console.timeEnd`)
+* **Que es:** Un cronometro nativo de Node.js para medir cuanto tarda en ejecutarse un bloque de codigo en milisegundos.
+* **Para que sirve:** Para comprobar en la practica la diferencia de velocidad entre una estructura **O(1)** (Cola con nodos) y una **O(n)** (Arreglo con `shift()`).
 
 
 
@@ -414,7 +490,7 @@ BITACORA Mini reto 4 |Semana 2| día 1 | 17/11/2026
 - Encontrar la carpeta de la mascota por su nombre seguiria siendo inmediato (O(1)).
 - Pero buscar una cita especifica dentro de un historial tan largo se pondria lento (O(n)), porque tocaria ir revisando cita por cita desde la primera hasta dar con ella.
 
-BITACORA Mini reto 1 |Semana 2| día 2 | 18/11/2026
+BITACORA Mini reto 5 |Semana 2| día 2 | 18/11/2026
 
 Me piden antes de tocar el código, dibujar el estado de una cola con referencias "frente" y "final" despues de encolar a Lola, Toby y Mía y desencolar de una vez.
 
@@ -439,3 +515,49 @@ Arreglo tradicional (push/shift): 673.05 ms
 En cola con nodos tardó menos tiempo porque el codigo va directo a la dirreción de memoria que necesita (O(1)).
 
 Por el contrario, el arreglo con shift lo que hace es recorrer todo el codigo, es decir, si sale alguno de la lista lo que sucede es que todos los demás se corren un espacio a la izquierda, lo que sería O(n), esto le toma más tiempo al programa y por lo tanto tarda más en ejecutarse.
+
+BITACORA Mini reto 6 |Semana 2| día 2 | 18/11/2026
+
+08:00 Toby -- General
+
+1. El consultorio está libre, Toby entra de inmediato a las 08:00 y termina a las 08:20
+
+2. 08:20 Toby -- Sale de consulta
+    2.1 Mientras Toby consultaba, llegaron dos mascotas: Max a las 08:05 (general), Luna 08:10 URGENCIA y Simón 08:20 (General)
+    2.2 Como Luna es ugencia, se salta a Max e ingresa inmediatamente a consulta 08:20 y términa 8:40
+    2.3 Espera de luna: 10 min (08:10-08:20)
+
+3. 08:40 Luna -- Sale de consulta
+    3.1 Mientras se atendía la urgencia de Luna, llegaron: Kira 08:25 URGENCIA y Nala 08:40 general
+    3.2 En sala de espera tenemos: Max general 08:05, Simón general 08:20, Kira URGENCIA 08:25 y Nala general 08:40
+        3.3 Como Kira es URGENCIA, se salta a Max, Simón y Nala, e ingresa a consulta a las 08:40 y termina a las 09:00
+    3.4 Espera de Kira: 15 min (08:25-08:40)
+
+4. 09:00 Kira -- Sale de consulta
+    4.1 Justo a las 09:00 llega Rocky URGENCIA
+    4.2 En sala de espera tenemos: Max general 08:05, Simón general 08:20, Nala general 08:40 y Rocky URGENCIA 09:00
+    4.3 Como Rocky es URGENCIA, tiene prioridad e ingresa inmediatamente a las 09:00 y termina a las 09:20
+    4.4 Espera de Rocky: 0 min (09:00-09:00)
+
+5. 09:20 Rocky -- Sale de consulta
+    5.1 Ya no quedan urgencias en espera, así que se atienden las generales en orden de llegada (FIFO)
+    5.2 Ingresa Max general (llegó 08:05) a las 09:20 y termina a las 09:40
+    5.3 Espera de Max: 75 min (08:05-09:20)
+
+6. 09:40 Max -- Sale de consulta
+    6.1 Ingresa Simón general (llegó 08:20) a las 09:40 y termina a las 10:00
+    6.2 Espera de Simón: 80 min (08:20-09:40)
+
+7. 10:00 Simón -- Sale de consulta
+    7.1 Ingresa la última paciente, Nala general (llegó 08:40) a las 10:00 y termina a las 10:20
+    7.2 Espera de Nala: 80 min (08:40-10:00)
+
+--- RESUMEN DE PROMEDIOS ---
+- Promedio espera Urgencias: (10 + 15 + 0) / 3 = 8.33 min
+- Promedio espera Generales: (0 + 75 + 80 + 80) / 4 = 58.75 min
+
+
+8. Verificación contra la simulación (node src/simulacion.js)
+    8.1 Al ejecutar el código, el orden de atención coincidió exactamente con el cálculo manual: Toby -> Luna -> Kira -> Rocky -> Max -> Simón -> Nala
+    8.2 Los promedios reales fueron: 8.33 min para Urgencias y 58.75 min para Generales (100% iguales a la traza a mano)
+    8.3 Conclusión: El uso de dos colas FIFO independientes prioriza las urgencias sin alterar el orden de llegada interno de cada fila
