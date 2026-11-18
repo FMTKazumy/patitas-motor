@@ -433,8 +433,8 @@ frente --> [Toby] --> [Mía] --> null
 
 PRUEBAS DE TIEMPO
 
-Cola con Nodos:  10.143 ms
-Arreglo tradicional (push/shift): 633.713 ms
+Cola con Nodos:  9.34 ms
+Arreglo tradicional (push/shift): 673.05 ms
 
 En cola con nodos tardó menos tiempo porque el codigo va directo a la dirreción de memoria que necesita (O(1)).
 
