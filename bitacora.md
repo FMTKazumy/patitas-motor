@@ -350,6 +350,12 @@ module.exports = ListaEnlazada;
 
 
 --------------------------------------------------
+
+
+
+
+
+
 BITACORA Mini reto 1 |Semana 2| día 1 | 17/11/2026
 cabeza -> [02/02 Vacunación | $85.000] -> [15/03 Control de peso | $40.000] -> [20/05 Limpieza dental | $150.000] -> null
 
@@ -407,3 +413,29 @@ BITACORA Mini reto 4 |Semana 2| día 1 | 17/11/2026
 **Que pasaria si tuviera que buscar entre 10.000 citas:**
 - Encontrar la carpeta de la mascota por su nombre seguiria siendo inmediato (O(1)).
 - Pero buscar una cita especifica dentro de un historial tan largo se pondria lento (O(n)), porque tocaria ir revisando cita por cita desde la primera hasta dar con ella.
+
+BITACORA Mini reto 1 |Semana 2| día 2 | 18/11/2026
+
+Me piden antes de tocar el código, dibujar el estado de una cola con referencias "frente" y "final" despues de encolar a Lola, Toby y Mía y desencolar de una vez.
+
+Bajo el principio de FIFO:
+
+frente --> [Lola] --> [Toby] --> [Mía] --> null
+
+                                   ^
+                                  final 
+
+como sale Lola, el puntero frente apunta a Toby y el final sigue igual a Mía.
+frente --> [Toby] --> [Mía] --> null
+
+                        ^
+                      final 
+
+PRUEBAS DE TIEMPO
+
+Cola con Nodos:  10.143 ms
+Arreglo tradicional (push/shift): 633.713 ms
+
+En cola con nodos tardó menos tiempo porque el codigo va directo a la dirreción de memoria que necesita (O(1)).
+
+Por el contrario, el arreglo con shift lo que hace es recorrer todo el codigo, es decir, si sale alguno de la lista lo que sucede es que todos los demás se corren un espacio a la izquierda, lo que sería O(n), esto le toma más tiempo al programa y por lo tanto tarda más en ejecutarse.
