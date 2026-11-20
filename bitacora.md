@@ -561,3 +561,65 @@ BITACORA Mini reto 6 |Semana 2| día 2 | 18/11/2026
     8.1 Al ejecutar el código, el orden de atención coincidió exactamente con el cálculo manual: Toby -> Luna -> Kira -> Rocky -> Max -> Simón -> Nala
     8.2 Los promedios reales fueron: 8.33 min para Urgencias y 58.75 min para Generales (100% iguales a la traza a mano)
     8.3 Conclusión: El uso de dos colas FIFO independientes prioriza las urgencias sin alterar el orden de llegada interno de cada fila
+
+BITACORA Mini reto 7 |Semana 2| día 2 | 20/11/2026
+
+DECISIÓN DE DISEÑO DE LA PILA (LIFO)
+
+Construí la clase Pila usando nodos enlazados (reutilizando Nodo.js) con un puntero "tope" y un contador "longitud".
+
+Bajo el principio LIFO (el último en entrar es el primero en salir):
+
+tope --> [accion B] --> [accion A] --> null
+
+Todas las operaciones (apilar, desapilar, verTope, estaVacia y tamanio) son O(1) porque el código va directo a la referencia de memoria del "tope" sin tener que recorrer toda la estructura ni correr elementos de posición.
+
+TRAZA DE LOS 8 PASOS (node pruebas/editor.js)
+
+1. Paso 1: agregar A
+    1.1 Se registra A en el historial clínico: ["A"]
+    1.2 Pila Deshacer (tope -> base): [agregar(A)]
+    1.3 Pila Rehacer (tope -> base): [] (vacía)
+
+2. Paso 2: agregar B
+    2.1 Se registra B en el historial clínico: ["A", "B"]
+    2.2 Pila Deshacer (tope -> base): [agregar(B) -> agregar(A)]
+    2.3 Pila Rehacer (tope -> base): [] (vacía)
+
+3. Paso 3: eliminar A
+    3.1 Se elimina A del historial clínico: ["B"]
+    3.2 Pila Deshacer (tope -> base): [eliminar(A) -> agregar(B) -> agregar(A)]
+    3.3 Pila Rehacer (tope -> base): [] (vacía)
+
+4. Paso 4: deshacer
+    4.1 Saca eliminar(A) de Pila Deshacer, revierte el borrado y lo pasa a Pila Rehacer
+    4.2 Historial clínico resultante: ["B", "A"]
+    4.3 Pila Deshacer (tope -> base): [agregar(B) -> agregar(A)]
+    4.4 Pila Rehacer (tope -> base): [eliminar(A)]
+
+5. Paso 5: deshacer
+    5.1 Saca agregar(B) de Pila Deshacer, elimina B del historial y lo pasa a Pila Rehacer
+    5.2 Historial clínico resultante: ["A"]
+    5.3 Pila Deshacer (tope -> base): [agregar(A)]
+    5.4 Pila Rehacer (tope -> base): [agregar(B) -> eliminar(A)]
+
+6. Paso 6: rehacer
+    6.1 Saca agregar(B) de Pila Rehacer, vuelve a registrar B y lo devuelve a Pila Deshacer
+    6.2 Historial clínico resultante: ["A", "B"]
+    6.3 Pila Deshacer (tope -> base): [agregar(B) -> agregar(A)]
+    6.4 Pila Rehacer (tope -> base): [eliminar(A)]
+
+7. Paso 7: agregar C
+    7.1 Se registra C en el historial clínico: ["A", "B", "C"]
+    7.2 Regla de editor: al hacer una acción nueva después de deshacer, Pila Rehacer se vacía por completo
+    7.3 Pila Deshacer (tope -> base): [agregar(C) -> agregar(B) -> agregar(A)]
+    7.4 Pila Rehacer (tope -> base): [] (vacía)
+
+8. Paso 8: rehacer
+    8.1 Como Pila Rehacer está vacía, rehacer() retorna null y no modifica nada
+    8.2 Historial clínico final: ["A", "B", "C"]
+    8.3 Pila Deshacer (tope -> base): [agregar(C) -> agregar(B) -> agregar(A)]
+    8.4 Pila Rehacer (tope -> base): [] (vacía)
+
+--- CONCLUSIÓN ---
+- El uso de dos pilas LIFO independientes permite viajar hacia atrás (deshacer) y hacia adelante (rehacer) en tiempo constante O(1), manteniendo el historial clínico sincronizado en cada paso y sin lanzar errores cuando alguna pila queda vacía.
